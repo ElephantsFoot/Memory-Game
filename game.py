@@ -77,6 +77,7 @@ class PlayState:
             GPIO.output(led, GPIO.HIGH)
             time.sleep(1)
             GPIO.output(led, GPIO.LOW)
+            time.sleep(0.5)
 
     def game_over_animation(self):
         for led in utils.LED_CIRCLE:
