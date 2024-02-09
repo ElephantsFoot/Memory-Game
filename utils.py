@@ -55,6 +55,7 @@ LED_CIRCLE = [UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT]
 def convert_coords_into_led_number(x, y) -> int:
     for led in LED_CIRCLE:
         GPIO.output(led, GPIO.LOW)
+    result_led = None
     if x > 600:
         if y > 600:
             result_led = DOWN_RIGHT
