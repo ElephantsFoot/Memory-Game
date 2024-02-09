@@ -41,11 +41,13 @@ class PlayState:
 
     def start_game_animation(self):
         print("Starting game animation")
+        time.sleep(5)
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.HIGH)
-            time.sleep(0.1)
+            time.sleep(1)
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.LOW)
+        time.sleep(5)
         print("Finished game animation")
 
     def execute(self):
@@ -53,6 +55,7 @@ class PlayState:
         correct_answer: bool = self.read_input_sequence()
         if not correct_answer:
             self.reset_game()
+        self.start_game_animation()
 
     def extend_sequence(self):
         self.sequence.append(random.choice(utils.LED_CIRCLE))
