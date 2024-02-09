@@ -14,7 +14,7 @@ spi.open(2,0)
 spi.max_speed_hz=1000000
 
 #define custom chip select
-#this is done so we can use dozens of SPI devices on 1 bus
+#this is done, so we can use dozens of SPI devices on 1 bus
 CS_ADC = 29
 GPIO.setup(CS_ADC, GPIO.OUT)
 
@@ -33,7 +33,7 @@ def ConvertToVoltage(value, bitdepth, vref):
 # Define delay between readings
 delay = 0.1
 
-def read_from_joystick():
+def read_from_joystick() -> (int, int):
   GPIO.output(CS_ADC, GPIO.LOW)
   y_value = ReadChannel3008(1)
   GPIO.output(CS_ADC, GPIO.HIGH)
@@ -53,28 +53,34 @@ LEFT = 7
 UP_LEFT = 5
 LED_CIRCLE = [UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT]
 
-def light_leds(x, y):
+def convert_coords_into_led_number(x, y) -> int:
     for led in LED_CIRCLE:
         GPIO.output(led, GPIO.LOW)
     if x > 600:
         if y > 600:
-            GPIO.output(DOWN_RIGHT, GPIO.HIGH)
+            led = DOWN_RIGHT
         if 500<=y<=600:
-            GPIO.output(RIGHT, GPIO.HIGH)
+            led = RIGHT
         if y < 500:
-            GPIO.output(UP_RIGHT, GPIO.HIGH)
+            led = UP_RIGHT
     if x < 500:
         if y > 600:
-            GPIO.output(DOWN_LEFT, GPIO.HIGH)
+            led = DOWN_LEFT
         if 500<=y<=600:
-            GPIO.output(LEFT, GPIO.HIGH)
+            led = LEFT
         if y < 500:
-            GPIO.output(UP_LEFT, GPIO.HIGH)
+            led = UP_LEFT
     if 500 <=x <= 600:
         if y > 600:
-            GPIO.output(DOWN, GPIO.HIGH)
+            led = DOWN
         if y < 500:
-            GPIO.output(UP, GPIO.HIGH)
+            led = UP
+
+    GPIO.output(led, GPIO.HIGH)
+    time.sleep(0.5)
+    GPIO.output(led, GPIO.LOW)
+    return led
+
 for led in LED_CIRCLE:
     GPIO.setup(led, GPIO.OUT)
 
@@ -86,14 +92,3 @@ def blink_leds(times):
         for led in LED_CIRCLE:
             GPIO.output(led, GPIO.LOW)
         time.sleep(0.1)
-
-try:
-    while True:
-        if not GPIO.input(BUTTON):
-            blink_leds(5)
-        x, y = read_from_joystick()
-        light_leds(x, y)
-        time.sleep(delay)
-except KeyboardInterrupt:
-    GPIO.cleanup()
-
