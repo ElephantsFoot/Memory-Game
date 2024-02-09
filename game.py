@@ -26,7 +26,7 @@ class MenuState:
         for led in self.other_leds:
             GPIO.output(led, GPIO.LOW)
 
-    def start_game(self):
+    def start_game(self, channel):
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.LOW)
         self.game.state = PlayState(game)
