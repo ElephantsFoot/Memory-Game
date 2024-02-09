@@ -57,8 +57,10 @@ class PlayState:
 
     def read_input_sequence(self):
         for expected_led in self.sequence:
-            x, y = utils.read_from_joystick()
-            input_led = utils.convert_coords_into_led_number(x, y)
+            input_led = None
+            while not input_led:
+                x, y = utils.read_from_joystick()
+                input_led = utils.convert_coords_into_led_number(x, y)
             if expected_led != input_led:
                 return False
         return True
