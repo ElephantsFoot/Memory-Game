@@ -7,41 +7,49 @@ import random
 import utils
 
 
-class MemoryGame:
-    def __init__(self):
-        self.game_started = False
-        self.menu()
-        self.sequence = []
-
-    def menu(self):
+class MenuState:
+    def __init__(self, game):
+        self.game = game
         GPIO.add_event_detect(utils.BUTTON, GPIO.FALLING, callback=self.start_game)
-        diagonal_leds = [utils.UP_LEFT, utils.DOWN_LEFT, utils.DOWN_RIGHT, utils.UP_RIGHT]
-        other_leds = [utils.UP, utils.DOWN, utils.LEFT, utils.RIGHT]
-        while True:
-            if self.game_started:
-                break
-            for led in diagonal_leds:
-                GPIO.output(led, GPIO.HIGH)
-            time.sleep(0.5)
-            for led in diagonal_leds:
-                GPIO.output(led, GPIO.LOW)
-            for led in other_leds:
-                GPIO.output(led, GPIO.HIGH)
-            time.sleep(0.5)
-            for led in other_leds:
-                GPIO.output(led, GPIO.LOW)
+        self.diagonal_leds = [utils.UP_LEFT, utils.DOWN_LEFT, utils.DOWN_RIGHT, utils.UP_RIGHT]
+        self.other_leds = [utils.UP, utils.DOWN, utils.LEFT, utils.RIGHT]
 
-    def start_game(self, channel):
-        self.game_started = True
+    def execute(self):
+        for led in self.diagonal_leds:
+            GPIO.output(led, GPIO.HIGH)
+        time.sleep(0.5)
+        for led in self.diagonal_leds:
+            GPIO.output(led, GPIO.LOW)
+        for led in self.other_leds:
+            GPIO.output(led, GPIO.HIGH)
+        time.sleep(0.5)
+        for led in self.other_leds:
+            GPIO.output(led, GPIO.LOW)
+
+    def start_game(self):
+        for led in utils.LED_CIRCLE:
+            GPIO.output(led, GPIO.LOW)
+        self.game.state = PlayState(game)
+
+
+class PlayState:
+    def __init__(self, game):
+        self.game = game
+        self.sequence = []
         self.start_game_animation()
-        GPIO.remove_event_detect(utils.BUTTON)
-        while True:
-            self.extend_sequence()
-            correct_answer: bool = self.read_input_sequence()
-            if not correct_answer:
-                self.reset_game()
-                break
-        self.menu()
+
+    def start_game_animation(self):
+        for led in utils.LED_CIRCLE:
+            GPIO.output(led, GPIO.HIGH)
+            time.sleep(0.1)
+        for led in utils.LED_CIRCLE:
+            GPIO.output(led, GPIO.LOW)
+
+    def execute(self):
+        self.extend_sequence()
+        correct_answer: bool = self.read_input_sequence()
+        if not correct_answer:
+            self.reset_game()
 
     def extend_sequence(self):
         self.sequence.append(random.choice(utils.LED_CIRCLE))
@@ -78,21 +86,26 @@ class MemoryGame:
         time.sleep(0.2)
         GPIO.output(utils.DOWN, GPIO.LOW)
 
-    def start_game_animation(self):
-        for led in utils.LED_CIRCLE:
-            GPIO.output(led, GPIO.HIGH)
-            time.sleep(0.1)
-        for led in utils.LED_CIRCLE:
-            GPIO.output(led, GPIO.LOW)
 
     def reset_game(self):
         self.game_over_animation()
-        self.sequence.clear()
+        self.game.state = MenuState(self.game)
+
+
+class MemoryGame:
+    def __init__(self):
         self.game_started = False
-        self.menu()
+        self.state = MenuState(self)
+
+    def play(self):
+        while True:
+            self.state.execute()
+
+
 
 if __name__ == "__main__":
     try:
         game = MemoryGame()
+        game.play()
     except KeyboardInterrupt:
         GPIO.cleanup()
