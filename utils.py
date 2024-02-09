@@ -76,9 +76,11 @@ def convert_coords_into_led_number(x, y) -> int:
         if y < 500:
             result_led = UP
 
-    GPIO.output(result_led, GPIO.HIGH)
+    if result_led:
+        GPIO.output(result_led, GPIO.HIGH)
     time.sleep(0.5)
-    GPIO.output(result_led, GPIO.LOW)
+    if result_led:
+        GPIO.output(result_led, GPIO.LOW)
     return result_led
 
 for led in LED_CIRCLE:
