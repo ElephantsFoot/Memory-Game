@@ -40,7 +40,6 @@ def read_from_joystick() -> (int, int):
   GPIO.output(CS_ADC, GPIO.LOW)
   x_value = ReadChannel3008(0)
   GPIO.output(CS_ADC, GPIO.HIGH)
-  print(x_value, y_value)
   return x_value, y_value
 
 UP = 3

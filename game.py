@@ -39,11 +39,13 @@ class PlayState:
         self.start_game_animation()
 
     def start_game_animation(self):
+        print("Starting game animation")
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.HIGH)
             time.sleep(0.1)
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.LOW)
+        print("Finished game animation")
 
     def execute(self):
         self.extend_sequence()
@@ -56,11 +58,15 @@ class PlayState:
         self.sequence_animation()
 
     def read_input_sequence(self):
+        print("Sequence is ", self.sequence)
         for expected_led in self.sequence:
             input_led = None
             while not input_led:
+                print("Reading from joystick")
                 x, y = utils.read_from_joystick()
+                print("x y", x , y)
                 input_led = utils.convert_coords_into_led_number(x, y)
+                print("Input led is", input_led)
             if expected_led != input_led:
                 return False
         return True
