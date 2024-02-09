@@ -31,7 +31,7 @@ class MemoryGame:
             for led in other_leds:
                 GPIO.output(led, GPIO.LOW)
 
-    def start_game(self):
+    def start_game(self, channel):
         self.game_started = True
         self.start_game_animation()
         GPIO.remove_event_detect(utils.BUTTON)
