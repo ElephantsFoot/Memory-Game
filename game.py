@@ -28,13 +28,13 @@ class MenuState:
 
     def start_game(self, channel):
         GPIO.remove_event_detect(utils.BUTTON)
-        for led in utils.LED_CIRCLE:
-            GPIO.output(led, GPIO.LOW)
         self.game.state = PlayState(game)
 
 
 class PlayState:
     def __init__(self, game):
+        for led in utils.LED_CIRCLE:
+            GPIO.output(led, GPIO.LOW)
         self.game = game
         self.sequence = []
         self.start_game_animation()
