@@ -52,10 +52,12 @@ LEFT = 7
 UP_LEFT = 5
 LED_CIRCLE = [UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT]
 
-def convert_coords_into_led_number(x, y) -> int:
+def convert_coords_into_led_number(x, y) -> int | None :
     for led in LED_CIRCLE:
         GPIO.output(led, GPIO.LOW)
     result_led = None
+    if x > 1000:
+        return None
     if x > 750:
         if y > 750:
             result_led = DOWN_RIGHT
