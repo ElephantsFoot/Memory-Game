@@ -27,8 +27,7 @@ class MenuState:
             GPIO.output(led, GPIO.LOW)
 
     def start_game(self, channel):
-        for led in utils.LED_CIRCLE:
-            GPIO.output(led, GPIO.LOW)
+        GPIO.remove_event_detect(utils.BUTTON)
         self.game.state = PlayState(game)
 
 
@@ -36,16 +35,20 @@ class PlayState:
     def __init__(self, game):
         self.game = game
         self.sequence = []
-        self.start_game_animation()
 
     def start_game_animation(self):
+        for led in utils.LED_CIRCLE:
+            GPIO.output(led, GPIO.LOW)
+        print("Starting game animation")
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.HIGH)
             time.sleep(0.1)
         for led in utils.LED_CIRCLE:
             GPIO.output(led, GPIO.LOW)
+        print("Finished game animation")
 
     def execute(self):
+        self.start_game_animation()
         self.extend_sequence()
         correct_answer: bool = self.read_input_sequence()
         if not correct_answer:
@@ -56,11 +59,15 @@ class PlayState:
         self.sequence_animation()
 
     def read_input_sequence(self):
+        print("Sequence is ", self.sequence)
         for expected_led in self.sequence:
             input_led = None
             while not input_led:
+                print("Reading from joystick")
                 x, y = utils.read_from_joystick()
+                print("x y", x , y)
                 input_led = utils.convert_coords_into_led_number(x, y)
+                print("Input led is", input_led)
             if expected_led != input_led:
                 return False
         return True
@@ -70,6 +77,7 @@ class PlayState:
             GPIO.output(led, GPIO.HIGH)
             time.sleep(1)
             GPIO.output(led, GPIO.LOW)
+            time.sleep(0.5)
 
     def game_over_animation(self):
         for led in utils.LED_CIRCLE:

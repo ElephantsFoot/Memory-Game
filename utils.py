@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from typing import Optional
+
 import spidev
 import time
 import ASUS.GPIO as GPIO
@@ -40,7 +42,6 @@ def read_from_joystick() -> (int, int):
   GPIO.output(CS_ADC, GPIO.LOW)
   x_value = ReadChannel3008(0)
   GPIO.output(CS_ADC, GPIO.HIGH)
-  print(x_value, y_value)
   return x_value, y_value
 
 UP = 3
@@ -53,33 +54,38 @@ LEFT = 7
 UP_LEFT = 5
 LED_CIRCLE = [UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT, UP_LEFT]
 
-def convert_coords_into_led_number(x, y) -> int:
+def convert_coords_into_led_number(x, y) -> Optional[int]:
     for led in LED_CIRCLE:
         GPIO.output(led, GPIO.LOW)
-    if x > 600:
-        if y > 600:
-            led = DOWN_RIGHT
-        if 500<=y<=600:
-            led = RIGHT
-        if y < 500:
-            led = UP_RIGHT
-    if x < 500:
-        if y > 600:
-            led = DOWN_LEFT
-        if 500<=y<=600:
-            led = LEFT
-        if y < 500:
-            led = UP_LEFT
-    if 500 <=x <= 600:
-        if y > 600:
-            led = DOWN
-        if y < 500:
-            led = UP
+    result_led = None
+    if x > 1000:
+        return None
+    if x > 750:
+        if y > 750:
+            result_led = DOWN_RIGHT
+        if 350<=y<=750:
+            result_led = RIGHT
+        if y < 350:
+            result_led = UP_RIGHT
+    if x < 350:
+        if y > 750:
+            result_led = DOWN_LEFT
+        if 350<=y<=750:
+            result_led = LEFT
+        if y < 350:
+            result_led = UP_LEFT
+    if 350 <=x <= 750:
+        if y > 750:
+            result_led = DOWN
+        if y < 350:
+            result_led = UP
 
-    GPIO.output(led, GPIO.HIGH)
+    if result_led:
+        GPIO.output(result_led, GPIO.HIGH)
     time.sleep(0.5)
-    GPIO.output(led, GPIO.LOW)
-    return led
+    if result_led:
+        GPIO.output(result_led, GPIO.LOW)
+    return result_led
 
 for led in LED_CIRCLE:
     GPIO.setup(led, GPIO.OUT)
